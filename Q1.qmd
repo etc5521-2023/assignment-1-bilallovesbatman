@@ -7,3 +7,175 @@ format: html
 ## Exercise 1
 
 The [blog post by Manuel Rademaker](https://www.manuel-rademaker.com/blog/tidy_tuesday/2021_05_15_ceo_depatures/) describes a neat analysis of the [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday) data on CEO departures. Re-run this analysis for yourself. Report any problems reproducing the results. Your primary task for this exercise is to outline all of the parts of the analysis, and label them as EDA, IDA or confirmatory analysis.
+
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+library(ggplot2)
+library(visdat)
+```
+
+
+```{r}
+tt  <- tidytuesdayR::tt_load('2021-04-27')
+ceo <- tt$departures
+```
+
+```{r}
+dim(ceo)
+
+vis_dat(ceo)
+```
+
+```{r}
+ggplot(ceo, aes(y = departure_code)) + 
+   geom_bar(fill = main_color) +
+   labs(
+      title    = "Reason for CEO departure",
+      x = "",
+      y = ""
+   )
+```
+
+```{r}
+ceo %>% 
+   group_by(fyear, departure_code) %>% 
+   count()
+```
+
+```{r}
+ceo_reduced <- ceo %>% 
+   filter(departure_code %in% 3:7) %>% 
+   mutate(
+      departure_label = as.factor(recode(departure_code,
+         `3` = "Bad performance",
+         `4` = "Legal",
+         `5` = "Retired",
+         `6` = "New opportunity",
+         `7` = "Other")),
+      fyear = lubridate::make_date(fyear)) %>% 
+   relocate(fyear, departure_label)
+```
+
+
+```{r}
+ceo_reduced %>% 
+   group_by(departure_label) %>% 
+   count() %>% 
+   ggplot(aes(y = fct_reorder(departure_label, n), x = n)) + 
+   geom_col(fill = main_color) +
+   labs(
+      title = "CEO depature by reason",
+      subtitle = "S&P 1500 firms between 1987 - 2019",
+      x = "",
+      y = "",
+      caption = "Source: Gentry et al."
+   ) + 
+   scale_x_continuous(breaks = scales::breaks_width(500))
+```
+
+```{r}
+ceo_reduced %>%
+   group_by(fyear, departure_label) %>% 
+   count() %>% 
+   ggplot(aes(x = fyear, y = n, color = departure_label)) + 
+   geom_line() + 
+   labs(
+      title = "CEO departure by reason over time",
+      subtitle = "S&P 1500 firms between 1987 - 2019",
+      color = "Reason",
+      y     = "",
+      x     = ""
+   )
+```
+
+```{r}
+ceo_reduced %>%
+   filter(fyear != "1987-01-01")  %>%
+   group_by(fyear, departure_label) %>% 
+   count() %>% 
+   group_by(fyear) %>% 
+   mutate(share_fyear = n/sum(n)) %>% 
+   ungroup() %>% # for fct_reorder!
+   mutate(departure_label = fct_reorder(departure_label, -share_fyear, last)) %>% 
+   ggplot(aes(x = fyear, y = share_fyear, color = departure_label)) + 
+   geom_line() + 
+   labs(
+      title = "CEO departure by Reason over time",
+      subtitle = "S&P 1500 firms between 1987 - 2019",
+      color = "Reason",
+      x     = "",
+      y     = "% of total departures"
+   ) + 
+   scale_y_continuous(labels = scales::label_percent()) +
+   scale_x_date(
+      breaks = scales::breaks_width("4 years"),
+      labels = scales::label_date("%Y")
+      )
+```
+
+```{r}
+ceo_al_twice <- ceo_reduced %>%
+   group_by(exec_fullname) %>% 
+   mutate(appears_al_twice = n(), .after = departure_label) %>% 
+   filter(appears_al_twice > 1) %>%
+   ungroup()
+
+length(unique(ceo_al_twice$exec_fullname))
+```
+
+```{r}
+table(ceo_al_twice$appears_al_twice) / c(2, 3, 4)
+```
+
+```{r}
+ceo_changes <- ceo_al_twice %>% 
+   arrange(fyear) %>% 
+   group_by(exec_fullname) %>% 
+   mutate(departure_no = 1:n(), .after = departure_label,
+          departure_no = fct_inorder(recode(departure_no,
+             `1` = "First departure",
+             `2` = "Second departure",
+             `3` = "Third departure",
+             `4` = "Fourth departure"))) %>% 
+   ungroup()
+
+ggplot(ceo_changes, aes(x = departure_no, y = departure_label, group = exec_fullname)) + 
+   geom_line() +
+   labs(
+      x = "",
+      y = ""
+   )
+```
+
+```{r}
+ceo_changes_freq <- ceo_changes %>% 
+   count(departure_label, departure_no)
+
+ceo_4_changes <- ceo_changes %>% 
+   filter(appears_al_twice  == 4)
+
+ggplot(ceo_changes, aes(x = departure_no, y = departure_label)) + 
+   geom_line(aes(group = exec_fullname), alpha = 0.2) +
+   geom_point(
+      data = ceo_changes_freq, 
+      mapping = aes(size = n)) + 
+   geom_line(
+      data = ceo_4_changes, 
+      mapping = aes(group = exec_fullname, color = exec_fullname),
+      show.legend = FALSE) +
+   geom_text(      
+      data = filter(ceo_4_changes, departure_no  == "Fourth departure"), 
+      mapping = aes(label = exec_fullname),
+      nudge_y = -0.1
+      ) + 
+   labs(
+      title = "Trajectories of the reasons for CEO departure",
+      subtitle = "S&P 1500 firms between 1987 - 2019",
+      x = "",
+      y = "",
+      size = "Number of cases"
+   ) + 
+   theme(legend.position="bottom")
+```
+
