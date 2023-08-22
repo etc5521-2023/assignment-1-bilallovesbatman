@@ -1,6 +1,6 @@
 ---
 title: "Q1"
-author: "YOUR NAME HERE"
+author: "Bilal Raja"
 format: html
 ---
 
@@ -14,18 +14,24 @@ library(tidytuesdayR)
 library(ggplot2)
 library(visdat)
 ```
-
+# Load data and get an understanding
 
 ```{r}
 tt  <- tidytuesdayR::tt_load('2021-04-27')
 ceo <- tt$departures
 ```
 
+Firstly after the relevant packages are loaded, the CEO data is extracted from the tidytuesday for 27th April 2021 using the tt_load function. Once we have the required data, the number of observations and variables were checked followed by checking the class of variables and if there are any missing values using the `vis_dat` function as seen below. This stage of the analysis is the *Initial Data Analysis (IDA)*. Furthermore, I have reason to believe developing hypotheses and questions is also a part of IDA.
+
 ```{r}
 dim(ceo)
 
 vis_dat(ceo)
 ```
+
+# Question 1: Overall distribution of depature
+
+Below, there was an attempt to see a general distribution of the CEO departures. however, we encountered a problem where the object `main_color` was not found. This is because the object has not been defined. While the following codes carry out data wrangling to not include observations before the year 2000 as the data description informs the records should be from 2000 till 2018.
 
 ```{r}
 ggplot(ceo, aes(y = departure_code)) + 
@@ -42,6 +48,8 @@ ceo %>%
    group_by(fyear, departure_code) %>% 
    count()
 ```
+
+Once the decision is taken to not include the data before 2000, the initial plot is made more presentable by using the `departure_code` and turning it into factor type naming it `departure_label` and plotted. However, we encounter the same problem as before where we do not have the object `main_color`. The attempt to get the overall look and performance of the data can be classified as *Exploratory Data Analysis (EDA)* as we are not looking at the types of variables nor checking for missing values, but we see how the data looks upon visualization.
 
 ```{r}
 ceo_reduced <- ceo %>% 
@@ -74,6 +82,10 @@ ceo_reduced %>%
    scale_x_continuous(breaks = scales::breaks_width(500))
 ```
 
+# Question 2: Reason for departure over time 
+
+In this question, the CEOs' departures by reason over time were investigated:
+
 ```{r}
 ceo_reduced %>%
    group_by(fyear, departure_label) %>% 
@@ -88,6 +100,8 @@ ceo_reduced %>%
       x     = ""
    )
 ```
+
+
 
 ```{r}
 ceo_reduced %>%
@@ -114,6 +128,12 @@ ceo_reduced %>%
       )
 ```
 
+Next, of the total departures, a plot was made to assess the reasons over time as percent of total departures. This stage of analysis also is EDA as we explore the trends of the data.
+
+# Question 3
+
+In this stage of the analysis, the analyst looks to analyze the CEOs that show up twice, i.e. they record departures more than once.
+
 ```{r}
 ceo_al_twice <- ceo_reduced %>%
    group_by(exec_fullname) %>% 
@@ -123,10 +143,12 @@ ceo_al_twice <- ceo_reduced %>%
 
 length(unique(ceo_al_twice$exec_fullname))
 ```
-
+While here, the analyst looked to check how many appear more than twice, followed by looking to visualize that data to see any interesting patterns.
 ```{r}
 table(ceo_al_twice$appears_al_twice) / c(2, 3, 4)
 ```
+
+While the following plot was declared not as meaningful, the analyst proceeded to highlight the path of the 2 CEOs that recorded departures 4 times as this is an interesting find, the rest of the plot was worked on more to highlight the changes that appear more.
 
 ```{r}
 ceo_changes <- ceo_al_twice %>% 
@@ -179,3 +201,4 @@ ggplot(ceo_changes, aes(x = departure_no, y = departure_label)) +
    theme(legend.position="bottom")
 ```
 
+Thus, the plot is visualized pleasantly as it is giving more information. However, the steps taken in addressing this question do not confirm any hypothesis as no form of statistical testing took place, i.e. *Confirmatory Data Analysis (CDA)* and only EDA was observed since plots were made to gather insights with no clear connections observed.
