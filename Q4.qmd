@@ -16,3 +16,21 @@ e. Explain whether the pattern is consistent with what you expected, or how it d
 f. How many flights have departure delays over 8 hours?
 g. For flights with departure delays over 8 hours, how many had shorter arrival delays?
 h. Based on these last calculations, would you say that it is typical for flights that are delayed on departure to catch up time during the flight?
+
+
+```{r}
+library(DataExplorer)
+library(nycflights13)
+library(tidyverse)
+
+# Create a big data set
+airlines_all <- flights %>% 
+  full_join(airlines, by = "carrier") %>%
+  full_join(planes, by = "tailnum", 
+            suffix = c("_flights", "_planes")) %>%
+  full_join(airports, by = c("origin"="faa"), 
+            suffix = c("_carrier", "_origin")) %>%
+  full_join(airports, by = c("dest"="faa"), 
+            suffix = c("_origin", "_dest"))
+```
+

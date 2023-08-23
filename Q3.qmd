@@ -17,9 +17,7 @@ f. Compute the step, inner fence, outer fence. Make a Tukey-style schematic plot
 g. Use R to make a default boxplot. Which observations would be considered to be outliers? Why or why not is this a reasonable set of outliers? 
 
 
-# Answers
-
-a.
+# Load the data
 
 ```{r}
 library(tidyverse)
@@ -29,4 +27,33 @@ library(tidyverse)
 numbats <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-07/numbats.csv')
 ```
 
+# Answers
+
+## Part A
+
+```{r}
+numbatsfilt <- numbats |>
+  filter(!is.na(year)) |>
+  filter(year > 2010)
+```
+
+## Part B
+
+```{r}
+numbats_daily_count <- numbatsfilt |>
+  group_by(eventDate) |>
+  summarize(daily_sightings = n())
+
+numbats_daily_count
+```
+
+## Part C
+
+```{r}
+stem(numbats_daily_count$daily_sightings)
+```
+
+EXPLAIN THE DIAGRAM HERE
+
+## Part D
 
