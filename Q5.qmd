@@ -9,6 +9,30 @@ format: html
 In this exercise, you are asked to conduct inference to test for patterns in the penguins data.
 
 a. Pre-process the data to simplify the variable names to be `bl`, `bd`, `fl`, `bm`, keeping only these variables and the `species` variable, and to remove the two missing values.
+
+```{r}
+library(palmerpenguins)
+library(colorspace)
+library(patchwork)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(visdat)
+```
+
+```{r}
+peng_renamed <- penguins |>
+  rename(bl = bill_length_mm) |>
+  rename(bd = bill_depth_mm) |>
+  rename(fl = flipper_length_mm) |>
+  rename(bm = body_mass_g) |>
+  select(-island, -sex, -year) |>
+  filter(!is.na(bl))
+
+vis_dat(peng_renamed)
+```
+
+
 b. Make two scatterplots of `bm` vs `fl`, A and B, one where the species is coloured, as shown below.
 
 ```{r}
@@ -34,15 +58,15 @@ penguins_sub <- penguins %>%
          fl = flipper_length_mm,
          bm = body_mass_g) %>%
   na.omit()
-p1 <- ggplot(penguins_sub, aes(x=bm, y=fl)) +
+p1 <- ggplot(peng_renamed, aes(x=bm, y=fl)) +
   geom_point() +
   theme_minimal() +
   theme(aspect.ratio=1, legend.position="none") + ggtitle("A")
-p2 <- ggplot(penguins_sub, aes(x=bl, y=bd, colour=species)) +
+p2 <- ggplot(peng_renamed, aes(x=bm, y=fl, colour=species)) +
   geom_point() +
   scale_color_discrete_divergingx(palette="Zissou 1") +
   theme_minimal() +
-  theme(aspect.ratio=1, legend.position="none") + ggtitle("B")
+  theme(aspect.ratio=1, legend.position="bottom") + ggtitle("B")
 p1 + p2
 ```
 

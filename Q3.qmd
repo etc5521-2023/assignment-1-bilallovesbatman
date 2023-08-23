@@ -53,7 +53,14 @@ numbats_daily_count
 stem(numbats_daily_count$daily_sightings)
 ```
 
-EXPLAIN THE DIAGRAM HERE
+There is a very high skewness to the right and thus is asymmetrical. Moreover, it is non-uniform and less spread out as 1 is a huge mode (unimodel). This also shows less variability because the leaves are tightly packed towards the less number of sightings.
 
 ## Part D
 
+```{r}
+stem(sqrt(numbats_daily_count$daily_sightings))
+```
+
+There was an attempt to achieve symmetry where I tried using the square root and the log. However, there is still a fair amount of right skewness even after the transformations and thus, both methods were rejected. I did ponder upon using the box cox transformation but that requires no negative and 0 values, but our data has no sightings so that was also not feasible.
+
+## Part E
