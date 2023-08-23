@@ -22,15 +22,67 @@ h. Based on these last calculations, would you say that it is typical for flight
 library(DataExplorer)
 library(nycflights13)
 library(tidyverse)
-
-# Create a big data set
-airlines_all <- flights %>% 
-  full_join(airlines, by = "carrier") %>%
-  full_join(planes, by = "tailnum", 
-            suffix = c("_flights", "_planes")) %>%
-  full_join(airports, by = c("origin"="faa"), 
-            suffix = c("_carrier", "_origin")) %>%
-  full_join(airports, by = c("dest"="faa"), 
-            suffix = c("_origin", "_dest"))
 ```
 
+# Answers
+
+## Part A
+
+The arrival delay and departure delay are related because intuition dictates that if a plane has departed or taken off later than the expected time from the origin, there will be an arrival delay as the plane will not land on the expected arrival time.
+
+## Part B
+
+The unit that delays are reported in are minutes.
+
+## Part C
+
+```{r}
+delay_scatter <- flights |>
+  ggplot(aes(x = dep_delay,
+             y = arr_delay)) +
+  geom_point() +
+  theme_bw()
+
+delay_scatter
+```
+
+The variable `dep_delay` should be on the horizontal axis because it is dubbed as the explanatory variable. It makes sense that we analyze the reason why a flight might arrive later than the expected arrival time and one of the reasons that explains the delay is that since the flight departed later than the expected departure time, it will arrive later as well. If we opted to keep arrival delay on the x axis, it would not make sense since it would mean that a flight departed late because it arrived late.
+
+## Part D
+
+The variables `dep_delay` and `arr_delay` have a positive linear relationship with each other as the scatter plot suggests. It suggests that as the delay in departure in minutes increases, the delay in arrival increases linearly.
+
+## Part E
+
+The pattern is consistent with what we expected. As explained in the previous answers, we expected that the longer it takes for a flight to depart, it will arrive at the destination later as well. The longer the the delay in departure, the later the arrival. i did not expect any exponential relationship and it is consisten with the linear expectations.
+
+## Part F
+
+```{r}
+dep_delay8hrs_count <- flights |>
+  filter(dep_delay > 480)
+
+total_dep_delay <- nrow(dep_delay8hrs)
+
+total_dep_delay
+
+```
+
+There are `r total_dep_delay` flights that have departure delays over 8 hours.
+
+## Part G
+
+```{r}
+arr_delay_less8hrs <- dep_delay8hrs_count |>
+  filter(arr_delay < 480)
+
+total_arr_delay <- nrow(arr_delay_less8hrs)
+
+total_arr_delay
+```
+
+There are `r total_arr_delay` flights that have arrival delays of less than 8 hours.
+
+## Part H
+
+Based on the calculations, it does not seem typical for the flights to catch up on the delays since only `r total_arr_delay` flights arrived earlier than the 8 hour departure delay while the total number of flights that were delayed on departure greater than 8 hours is `r total_dep_delay`.
