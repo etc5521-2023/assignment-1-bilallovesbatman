@@ -18,6 +18,7 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(visdat)
+library(nullabor)
 ```
 
 ```{r}
@@ -27,7 +28,7 @@ peng_renamed <- penguins |>
   rename(fl = flipper_length_mm) |>
   rename(bm = body_mass_g) |>
   select(-island, -sex, -year) |>
-  filter(!is.na(bl))
+  na.omit()
 
 vis_dat(peng_renamed)
 ```
@@ -36,10 +37,6 @@ vis_dat(peng_renamed)
 b. Make two scatterplots of `bm` vs `fl`, A and B, one where the species is coloured, as shown below.
 
 ```{r}
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 5
 library(palmerpenguins)
 library(colorspace)
 library(patchwork)
@@ -58,19 +55,35 @@ penguins_sub <- penguins %>%
          fl = flipper_length_mm,
          bm = body_mass_g) %>%
   na.omit()
-p1 <- ggplot(peng_renamed, aes(x=bm, y=fl)) +
+pA <- ggplot(peng_renamed, aes(x=bm, y=fl)) +
   geom_point() +
   theme_minimal() +
   theme(aspect.ratio=1, legend.position="none") + ggtitle("A")
-p2 <- ggplot(peng_renamed, aes(x=bm, y=fl, colour=species)) +
+pB <- ggplot(peng_renamed, aes(x=bm, y=fl, colour=species)) +
   geom_point() +
   scale_color_discrete_divergingx(palette="Zissou 1") +
   theme_minimal() +
-  theme(aspect.ratio=1, legend.position="bottom") + ggtitle("B")
-p1 + p2
+  theme(aspect.ratio=1, legend.position="none") + ggtitle("B")
+pA + pB
 ```
 
 c. Construct a lineup of size 20 for plot A, that will enable assessing the strength of the linear relationship between `bm` and `fl`. Write down what is the null hypothesis, and how you have computed the null samples.
+
+```{r}
+lineup_A <- ggplot(
+  lineup(
+    null_permute(penguins_sub$fl)),
+  aes(
+    x = bm,
+    y = fl
+  )) +
+  geom_point() +
+  facet_wrap(~ .sample, ncol = 5) +
+  theme_void() +
+  theme(axis.text = element_blank(), 
+        panel.border = element_rect(fill = NA, colour = "black"))
+```
+
 
 d. Construct a lineup of size 20 for plot B, that will enable assessing the strength of the clustering of the three species. Write down what is the null hypothesis, and how you have computed the null samples.
 

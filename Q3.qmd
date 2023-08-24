@@ -19,11 +19,11 @@ g. Use R to make a default boxplot. Which observations would be considered to be
 
 # Load the data
 
-```{r}
+```{r, message = FALSE}
 library(tidyverse)
 ```
 
-```{r}
+```{r, message = FALSE}
 numbats <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-07/numbats.csv')
 ```
 
@@ -41,7 +41,7 @@ numbatsfilt <- numbats |>
 
 ```{r}
 numbats_daily_count <- numbatsfilt |>
-  group_by(eventDate) |>
+  group_by(day) |>
   summarize(daily_sightings = n())
 
 numbats_daily_count
@@ -62,13 +62,55 @@ stem(sqrt(numbats_daily_count$daily_sightings))
 stem(log(numbats_daily_count$daily_sightings))
 ```
 
-There was an attempt to achieve symmetry where I tried using the square root and the log. However, there is still a fair amount of right skewness even after the transformations and thus, both methods were rejected. I did ponder upon using the box cox transformation but that requires no negative and 0 values, but our data has no sightings so that was also not feasible.
+There was an attempt to achieve symmetry where I tried using the square root and the log. However, there is still a fair amount of right skewness even after the transformations and thus, both methods were rejected. I did ponder upon using the box cox transformation but that requires no negative and 0 values, but our data has no sightings so that was also not feasible. While I would generally recommend using he log function, in this case I would not recommend it for the reasons outlined above.
 
 ## Part E
 
-The median is 2 sightings, the Q1 is 1 sighting, and the Q3 is 3.
+There are 192 total sightings. The formula to calculate median is = (n + 1) / 2
+According to the formula, the median position is = 193/2 = 96.5.
+Since we have the answer as a decimal, the median observation is the average of the 96th, and 97th observation i.e. (2 + 2) / 2 = 2.
+
+```{r}
+median <- 2
+```
+
+
+Similarly, the formula for calculating the lower quartile Q1 is = (n + 1) * 1/4
+Q1 = (193)/4 = 48.25.
+Since the answer is in decimal, the first quartile observation is the average of the 48th and 49th position i.e. (1 + 1) / 2 = 1.
+
+```{r}
+Q1 <- 1
+```
+
+Furthermore, the formula for calculating the upper quartile Q3 is = (n + 1) * 3/4
+Q3 = (193) * 3/4 = 144.75
+Since the answer is in decimal, the 3rd quartile observation is the average of the 144th and 145th position i.e. (3 + 3) / 2 = 3.
+
+```{r}
+Q3 <- 3
+```
+
+
+The minimum value is 1 sighting, the Q1 is 1 sighting, the median is 2 sightings, the Q3 is 3 sightings, and the maximum number of sightings is 13. Tukey refers the upper and lower quartiles (Q1 and Q3) as the hinges.
 
 ## Part F
+
+```{r}
+IQ <- Q3 - Q1
+
+step <- 1.5 * IQ
+
+InnerFence_low <- Q1 - step
+
+InnerFence_up <- Q3 + step
+
+OutterFence_low <- Q1 - (2*step)
+
+OutterFence_up <- Q3 + (2*step)
+
+```
+
 
 ## Part G
 
@@ -78,3 +120,4 @@ boxplot(numbats_daily_count$daily_sightings, main="R Default Box Plot")
 
 ```
 
+In this case, the observations above the whisker can be considered outliers.
