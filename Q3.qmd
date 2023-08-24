@@ -59,8 +59,22 @@ There is a very high skewness to the right and thus is asymmetrical. Moreover, i
 
 ```{r}
 stem(sqrt(numbats_daily_count$daily_sightings))
+stem(log(numbats_daily_count$daily_sightings))
 ```
 
 There was an attempt to achieve symmetry where I tried using the square root and the log. However, there is still a fair amount of right skewness even after the transformations and thus, both methods were rejected. I did ponder upon using the box cox transformation but that requires no negative and 0 values, but our data has no sightings so that was also not feasible.
 
 ## Part E
+
+The median is 2 sightings, the Q1 is 1 sighting, and the Q3 is 3.
+
+## Part F
+
+## Part G
+
+```{r}
+# Assuming numbats_daily_count contains the data
+boxplot(numbats_daily_count$daily_sightings, main="R Default Box Plot")
+
+```
+

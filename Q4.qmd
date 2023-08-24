@@ -50,7 +50,7 @@ The variable `dep_delay` should be on the horizontal axis because it is dubbed a
 
 ## Part D
 
-The variables `dep_delay` and `arr_delay` have a positive linear relationship with each other as the scatter plot suggests. It suggests that as the delay in departure in minutes increases, the delay in arrival increases linearly.
+The variables `dep_delay` and `arr_delay` have a positive linear relationship with each other as the scatter plot suggests. It suggests that as the delay in departure in minutes increases, the delay in arrival increases linearly. The relationship may not be strong as most data points are not in a single line but a suggestion of a moderate relationship does exist.
 
 ## Part E
 
