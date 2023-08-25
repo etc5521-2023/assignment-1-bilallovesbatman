@@ -1,6 +1,6 @@
 ---
 title: "Q5"
-author: "YOUR NAME HERE"
+author: "Bilal Raja"
 format: html
 ---
 
@@ -8,7 +8,9 @@ format: html
 
 In this exercise, you are asked to conduct inference to test for patterns in the penguins data.
 
-a. Pre-process the data to simplify the variable names to be `bl`, `bd`, `fl`, `bm`, keeping only these variables and the `species` variable, and to remove the two missing values.
+### a. Pre-process the data to simplify the variable names to be `bl`, `bd`, `fl`, `bm`, keeping only these variables and the `species` variable, and to remove the two missing values.
+
+Also checking for removal of N/A values:
 
 ```{r}
 library(palmerpenguins)
@@ -18,48 +20,31 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(visdat)
-library(nullabor)
-```
 
-```{r}
-peng_renamed <- penguins |>
-  rename(bl = bill_length_mm) |>
-  rename(bd = bill_depth_mm) |>
-  rename(fl = flipper_length_mm) |>
-  rename(bm = body_mass_g) |>
-  select(-island, -sex, -year) |>
-  na.omit()
-
-vis_dat(peng_renamed)
-```
-
-
-b. Make two scatterplots of `bm` vs `fl`, A and B, one where the species is coloured, as shown below.
-
-```{r}
-library(palmerpenguins)
-library(colorspace)
-library(patchwork)
-library(tidyr)
-library(dplyr)
-library(ggplot2)
 penguins_sub <- penguins %>% 
   select(bill_length_mm,
          bill_depth_mm,
          flipper_length_mm,
          body_mass_g,
-         species, 
-         sex) %>% 
+         species) %>% 
   rename(bl = bill_length_mm,
          bd = bill_depth_mm,
          fl = flipper_length_mm,
          bm = body_mass_g) %>%
   na.omit()
-pA <- ggplot(peng_renamed, aes(x=bm, y=fl)) +
+
+vis_dat(penguins_sub)
+```
+
+
+### b. Make two scatterplots of `bm` vs `fl`, A and B, one where the species is coloured, as shown below.
+
+```{r}
+pA <- ggplot(penguins_sub, aes(x=bm, y=fl)) +
   geom_point() +
   theme_minimal() +
   theme(aspect.ratio=1, legend.position="none") + ggtitle("A")
-pB <- ggplot(peng_renamed, aes(x=bm, y=fl, colour=species)) +
+pB <- ggplot(penguins_sub, aes(x=bl, y=bd, colour=species)) +
   geom_point() +
   scale_color_discrete_divergingx(palette="Zissou 1") +
   theme_minimal() +
@@ -67,24 +52,64 @@ pB <- ggplot(peng_renamed, aes(x=bm, y=fl, colour=species)) +
 pA + pB
 ```
 
-c. Construct a lineup of size 20 for plot A, that will enable assessing the strength of the linear relationship between `bm` and `fl`. Write down what is the null hypothesis, and how you have computed the null samples.
+### c. Construct a lineup of size 20 for plot A, that will enable assessing the strength of the linear relationship between `bm` and `fl`. Write down what is the null hypothesis, and how you have computed the null samples.
 
 ```{r}
-lineup_A <- ggplot(
-  lineup(
-    null_permute(penguins_sub$fl)),
-  aes(
-    x = bm,
-    y = fl
-  )) +
+library(nullabor)
+
+set.seed(2023)
+
+ggplot(lineup(null_permute('bm'),
+              penguins_sub),
+       aes(
+         x = fl,
+         y = bm
+       )) +
   geom_point() +
-  facet_wrap(~ .sample, ncol = 5) +
+  facet_wrap(~.sample, ncol = 5) +
   theme_void() +
   theme(axis.text = element_blank(), 
-        panel.border = element_rect(fill = NA, colour = "black"))
+        panel.border = element_rect(fill=NA, colour="black"))
+```
+The null hypothesis (H0) is that no linear relationship exists between `bm` and `fl` i.e. they are independent of each other.
+
+The null samples are computed using the `nullabor` package where the function `null_permute` was called on the variable `fl`. The `lineup` function was used in the `ggplot` to line up the the resulting 20 plots, divided in 5 columns using the `facet_wrap`. This is how the null samples were computed in my case.
+
+### d. Construct a lineup of size 20 for plot B, that will enable assessing the strength of the clustering of the three species. Write down what is the null hypothesis, and how you have computed the null samples. The code was inspired from tutorial 4 of ETC5521 to use the `facet_wrap` and theme.
+
+```{r}
+set.seed(2025)
+
+ggplot(lineup(null_permute('species'),
+              penguins_sub),
+       aes(
+         x = bl,
+         y = bd,
+         color = species
+       )) +
+  geom_point() +
+  facet_wrap(~.sample, ncol = 5) +
+  theme_void() +
+  theme(axis.text = element_blank(), 
+        panel.border = element_rect(fill=NA, colour="black"))
 ```
 
+The null hypothesis (H0) is that no significantly strong clustering by species.
 
-d. Construct a lineup of size 20 for plot B, that will enable assessing the strength of the clustering of the three species. Write down what is the null hypothesis, and how you have computed the null samples.
+The null samples are computed using the `nullabor` package where the function `null_permute` was called on the variable `species`. The `lineup` function was used in the `ggplot` to line up the the resulting 20 plots, divided in 5 columns using the `facet_wrap`. This is how the null samples were computed in my case. The code was inspired from tutorial 4 of ETC5521 to use the `facet_wrap` and theme.
 
-e. Show your lineups to 8 friends, **individually**, who are not taking this unit, and ask them to choose the most different plot, and to explain to you why they have made that choice. Compute and report the $p$-value, and summarise the reasons that your friends made. (You need to show this to each friend individually so that you get an independent evaluation of the plot.)
+
+### e. Show your lineups to 8 friends, **individually**, who are not taking this unit, and ask them to choose the most different plot, and to explain to you why they have made that choice. Compute and report the $p$-value, and summarise the reasons that your friends made. (You need to show this to each friend individually so that you get an independent evaluation of the plot.)
+
+Upon showing the first line up (part d), all friends had answered that plot 1 was the most different plot (which is the correct plot). There was a common reasoning that each individual generally gave was that plot 1 seemed to follow 'some sort of' trend, while the rest were scattered and without any obvious trend. 1 of my friends that is comfortably familiar with statistics used the words that plot 1 followed a positive linear trend while the rest look merely like noise, another friend used the words "plot one is going in a north-east direction while the rest have no direction". I found this answer the best. Moving on, the p-values were calculated using the `nullabor` package as follows that showed statistical significance:
+
+```{r}
+nullabor::pvisual(8, 8, 20)
+```
+
+Similarly, the 2nd line up was also shown which was also very easily distinguishable. The 8 friends unanimously agreed that plot 18 is the most different (which is also the correct plot). Their explanation revolved around the distribution of the species (color) where they discussed that for plot 18, the species are not 'mixed up' while in the other plots, the species were 'dispersed'. The basic idea was that plot 18 has plot species clustered together. The p-values were calculated using the `nullabor` package again that showed statistical significance:
+
+```{r}
+nullabor::pvisual(8, 8, 20)
+```
+
