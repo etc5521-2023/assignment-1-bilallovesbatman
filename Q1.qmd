@@ -14,6 +14,7 @@ library(tidytuesdayR)
 library(ggplot2)
 library(visdat)
 ```
+
 # Load data and get an understanding
 
 ```{r}

@@ -27,7 +27,11 @@ kbl(desc, table.attr = 'data-quarto-disable-processing="true"') |>
 
 You need to conduct an **initial data analysis** to find and **report problems** that need to be fixed.
 
-```{r}
+### Answer
+
+To start off with the initial data analysis (IDA), the required libraries and the `cafe` dataset are loaded. 
+
+```{r, message = False}
 library(tidyverse)
 library(ggplot2)
 library(visdat)
@@ -36,13 +40,67 @@ load("cafe.rda")
 
 ```
 
+To start to get a general feel of the structure of the data, the summary function was used and already we issues with some of the variables' class and missing values. However, we do get to see the quartiles and the maximum and minimum values of the variables that are of class double. There is more investigation to be done though.
+
 ```{r}
+glimpse(cafe)
+
 summary(cafe)
+```
+
+I proceeded to make use of the `vis_dat` function to get an overall look of the classes and the missing values in the dataset followed by the `vis_guess` function to allow for a more accurate investigation since it visualizes the class of every single cell in our data. THe concern of missing values is solidifed here but another interesting point is that some variables belong to a class that do not make sense. For example, we would need the date (`dt`) variable to be as a date and not character. Moreover, the numeric variables do not have a consistent class since some cells are class integer while others are double. However, `precip` has a character class for 1 cell as well. Upon manually checking, there is a cell with a value of character 1.O instead of a 1.0 numeric. Moreover, I also observed that there is a spelling error of Wad instead of Wed under the `wday` column. Finally, I also observed that one of the temperatures was -16.000 in `mint` which is not possible.
+
+```{r}
 
 vis_dat(cafe)
+vis_guess(cafe)
+
 ```
+
+To fix these problems detected so far, I attempt to remove the NA values and fix the class of the variables:
+```{r}
+library(lubridate)
+
+cafe <- cafe |>
+  mutate(dt = as.Date(dt, "%m-%d-%y")) |>
+  mutate(wday = ifelse(wday == "Wad", "Wed", wday)) |>
+  mutate(revenue = as.numeric(revenue)) |>
+  mutate(expend = as.numeric(expend)) |>
+  mutate(precip = as.numeric(precip))|>
+  mutate(mint = as.numeric(mint)) |>
+  mutate(maxt = as.numeric(maxt)) |>
+  na.omit()
+
+```
+
+Next, I check if there are any outliers and try to understand what they may be. On the x axis, I lineup up the variables and observe:
 
 ```{r}
-
+boxplot(cafe$revenue, cafe$expend, cafe$precip, cafe$mint, cafe$maxt,
+        main = "Boxplots of Variables",
+        names = c("Revenue", "Expend", "Precip", "Mint", "Maxt"),
+        ylab = "Value")
 ```
 
+It looks like `precip` has a huge outlier and `mint` has a big negative value as seen below in the summaries too:
+
+```{r}
+summary(cafe$precip)
+summary(cafe$mint)
+```
+
+In the case of `mint` having the minimum value as -16.6, I believe the correct approach is the change the sign to positive as it makes much more sense.
+
+```{r}
+cafe <- cafe |>
+  mutate(mint = ifelse(mint == -16.60000, 16.60000, mint))
+```
+
+In this Initial Data Analysis, while we were not tasked to fix the problems, I tried to do it for extended learning. That said, the problems found are as follows:
+
+- `dt` in incorrect format: Should be in date format.
+- `wday` having 1 spelling error for Wed as Wad.
+- `precip` having a character observation (1.O) instead of numerical.
+- `precip` having an outlier of 60.8 as max value
+- `mint` having a wrong temperature entry of -16.6 which makes no sense causing it to be an outlier.
+- There were NA values in `revenue` and `expend` while classes across the numerical variables were inconsistent between integer and double.

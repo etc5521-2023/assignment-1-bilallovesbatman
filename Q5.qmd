@@ -36,6 +36,7 @@ penguins_sub <- penguins %>%
 vis_dat(penguins_sub)
 ```
 
+vis_dat was used just to confirm if all NA values were removed.
 
 ### b. Make two scatterplots of `bm` vs `fl`, A and B, one where the species is coloured, as shown below.
 

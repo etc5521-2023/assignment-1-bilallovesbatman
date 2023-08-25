@@ -106,4 +106,4 @@ OutterFence_up
 boxplot(numbats_daily_count$daily_sightings, main="R Default Box Plot")
 ```
 
-In this case, the observations above the whisker can be considered outliers. The sighting counts of 7, 8, 9, 13 should not be immediately called reasonable set of outliers because environmental factors should also be taken into account. For example, weather or temperature on a particular day be more suitable to the numbats. Another example could be the number of prey on a particular day could be abundant. Without further investigation, I would not classify the outliers as unreasonable.
+In this case, the observations above the whisker can be considered outliers. The sighting counts of 7, 8, 9, 13 should not be immediately called reasonable set of outliers because environmental factors should also be taken into account. For example, weather or temperature on a particular day be more suitable to the numbats. Another example could be the number of prey on a particular day could be abundant. Without further investigation, I would not classify the outliers as being unreasonable.

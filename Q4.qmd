@@ -61,6 +61,7 @@ total_dep_delay
 
 There are `r total_dep_delay` flights that have departure delays over 8 hours.
 
+
 ### g. For flights with departure delays over 8 hours, how many had shorter arrival delays?
 
 ```{r}
