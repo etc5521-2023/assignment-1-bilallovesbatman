@@ -8,8 +8,7 @@ format: html
 
 A small cafe in the city of Melbourne is interested in determining whether the daily earnings depend on the weather. They compiled data for a period over 2000-2001 to study this question. Their data is provided. It has the following variables:
 
-```{r}
-#| echo: false
+```{r, echo = False}
 library(kableExtra)
 desc <- tibble(var=c("dt", "wday", "revenue", "expend", "precip", "mint", "maxt", "source"),
                description=c("Date", 
@@ -27,3 +26,23 @@ kbl(desc, table.attr = 'data-quarto-disable-processing="true"') |>
 ```
 
 You need to conduct an **initial data analysis** to find and **report problems** that need to be fixed.
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(visdat)
+
+load("cafe.rda")
+
+```
+
+```{r}
+summary(cafe)
+
+vis_dat(cafe)
+```
+
+```{r}
+
+```
+

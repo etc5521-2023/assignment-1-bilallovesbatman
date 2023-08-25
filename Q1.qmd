@@ -8,7 +8,7 @@ format: html
 
 The [blog post by Manuel Rademaker](https://www.manuel-rademaker.com/blog/tidy_tuesday/2021_05_15_ceo_depatures/) describes a neat analysis of the [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday) data on CEO departures. Re-run this analysis for yourself. Report any problems reproducing the results. Your primary task for this exercise is to outline all of the parts of the analysis, and label them as EDA, IDA or confirmatory analysis.
 
-```{r}
+```{r, message = FALSE}
 library(tidyverse)
 library(tidytuesdayR)
 library(ggplot2)
@@ -31,15 +31,15 @@ vis_dat(ceo)
 
 # Question 1: Overall distribution of depature
 
-Below, there was an attempt to see a general distribution of the CEO departures. however, we encountered a problem where the object `main_color` was not found. This is because the object has not been defined. While the following codes carry out data wrangling to not include observations before the year 2000 as the data description informs the records should be from 2000 till 2018.
+Below, there was an attempt to see a general distribution of the CEO departures. however, we encountered a problem where the object `main_color` was not found. This is because the object has not been defined but I have replaced it with another color. While the following codes carry out data wrangling to not include observations before the year 2000 as the data description informs the records should be from 2000 till 2018.
 
 ```{r}
-ggplot(ceo, aes(y = departure_code)) + 
-   geom_bar(fill = main_color) +
-   labs(
+ ggplot(ceo, aes(y = departure_code)) + 
+    geom_bar(fill = "red") +
+    labs(
       title    = "Reason for CEO departure",
-      x = "",
-      y = ""
+       x = "",
+       y = ""
    )
 ```
 
@@ -49,7 +49,7 @@ ceo %>%
    count()
 ```
 
-Once the decision is taken to not include the data before 2000, the initial plot is made more presentable by using the `departure_code` and turning it into factor type naming it `departure_label` and plotted. However, we encounter the same problem as before where we do not have the object `main_color`. The attempt to get the overall look and performance of the data can be classified as *Exploratory Data Analysis (EDA)* as we are not looking at the types of variables nor checking for missing values, but we see how the data looks upon visualization.
+Once the decision is taken to not include the data before 2000, the initial plot is made more presentable by using the `departure_code` and turning it into factor type naming it `departure_label` and plotted. However, we encounter the same problem as before where we do not have the object `main_color` which is because I have changed the fill for another color. The attempt to get the overall look and performance of the data can be classified as *Exploratory Data Analysis (EDA)* as we are not looking at the types of variables nor checking for missing values, but we see how the data looks upon visualization.
 
 ```{r}
 ceo_reduced <- ceo %>% 
@@ -67,11 +67,11 @@ ceo_reduced <- ceo %>%
 
 
 ```{r}
-ceo_reduced %>% 
+ ceo_reduced %>% 
    group_by(departure_label) %>% 
    count() %>% 
    ggplot(aes(y = fct_reorder(departure_label, n), x = n)) + 
-   geom_col(fill = main_color) +
+   geom_col(fill = "red") +
    labs(
       title = "CEO depature by reason",
       subtitle = "S&P 1500 firms between 1987 - 2019",

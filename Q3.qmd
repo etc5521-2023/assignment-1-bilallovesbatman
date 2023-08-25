@@ -1,6 +1,6 @@
 ---
 title: "Q3"
-author: "YOUR NAME HERE"
+author: "Bilal Raja"
 format: html
 ---
 
@@ -8,28 +8,14 @@ format: html
 
 Download the `numbats` data from [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-03-07/readme.md), following the instructions on the website.
 
-a. Filter the data to be sightings after 2010.
-b. Count the number of sightings for each day.
-c. Make a stem-and-leaf of the sightings. Describe the shape. 
-d. If you were to transform the data to symmetrise, what function would you recommend? Explain why or why not this would be recommended for this variable.
-e. Following Tukey's EDA, identify which observation would be the median, Q1, Q3, and thus report the five-number-summary. Which statistic does Tukey refer to as the hinge?
-f. Compute the step, inner fence, outer fence. Make a Tukey-style schematic plot, hand-drawn. Which observations would be considered to be outliers?
-g. Use R to make a default boxplot. Which observations would be considered to be outliers? Why or why not is this a reasonable set of outliers? 
-
-
-# Load the data
+### Load the data
 
 ```{r, message = FALSE}
 library(tidyverse)
-```
-
-```{r, message = FALSE}
 numbats <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-07/numbats.csv')
 ```
 
-# Answers
-
-## Part A
+### a. Filter the data to be sightings after 2010.
 
 ```{r}
 numbatsfilt <- numbats |>
@@ -37,7 +23,7 @@ numbatsfilt <- numbats |>
   filter(year > 2010)
 ```
 
-## Part B
+### b. Count the number of sightings for each day.
 
 ```{r}
 numbats_daily_count <- numbatsfilt |>
@@ -47,7 +33,7 @@ numbats_daily_count <- numbatsfilt |>
 numbats_daily_count
 ```
 
-## Part C
+### c. Make a stem-and-leaf of the sightings. Describe the shape.
 
 ```{r}
 stem(numbats_daily_count$daily_sightings)
@@ -55,7 +41,7 @@ stem(numbats_daily_count$daily_sightings)
 
 There is a very high skewness to the right and thus is asymmetrical. Moreover, it is non-uniform and less spread out as 1 is a huge mode (unimodel). This also shows less variability because the leaves are tightly packed towards the less number of sightings.
 
-## Part D
+### d. If you were to transform the data to symmetrise, what function would you recommend? Explain why or why not this would be recommended for this variable.
 
 ```{r}
 stem(sqrt(numbats_daily_count$daily_sightings))
@@ -64,7 +50,7 @@ stem(log(numbats_daily_count$daily_sightings))
 
 There was an attempt to achieve symmetry where I tried using the square root and the log. However, there is still a fair amount of right skewness even after the transformations and thus, both methods were rejected. I did ponder upon using the box cox transformation but that requires no negative and 0 values, but our data has no sightings so that was also not feasible. While I would generally recommend using he log function, in this case I would not recommend it for the reasons outlined above.
 
-## Part E
+### e. Following Tukey's EDA, identify which observation would be the median, Q1, Q3, and thus report the five-number-summary. Which statistic does Tukey refer to as the hinge?
 
 There are 192 total sightings. The formula to calculate median is = (n + 1) / 2
 According to the formula, the median position is = 193/2 = 96.5.
@@ -94,30 +80,30 @@ Q3 <- 3
 
 The minimum value is 1 sighting, the Q1 is 1 sighting, the median is 2 sightings, the Q3 is 3 sightings, and the maximum number of sightings is 13. Tukey refers the upper and lower quartiles (Q1 and Q3) as the hinges.
 
-## Part F
+### f. Compute the step, inner fence, outer fence. Make a Tukey-style schematic plot, hand-drawn. Which observations would be considered to be outliers?
 
 ```{r}
 IQ <- Q3 - Q1
+Step <- 1.5 * IQ
+InnerFence_low <- Q1 - Step
+InnerFence_up <- Q3 + Step
+OutterFence_low <- Q1 - (2*Step)
+OutterFence_up <- Q3 + (2*Step)
 
-step <- 1.5 * IQ
-
-InnerFence_low <- Q1 - step
-
-InnerFence_up <- Q3 + step
-
-OutterFence_low <- Q1 - (2*step)
-
-OutterFence_up <- Q3 + (2*step)
-
+IQ
+Step
+InnerFence_low
+InnerFence_up
+OutterFence_low
+OutterFence_up
 ```
+![Schematic](images/tukey.jpg "Tukey-style Schematic Plot"){fig-align="center"}
 
 
-## Part G
+### g. Use R to make a default boxplot. Which observations would be considered to be outliers? Why or why not is this a reasonable set of outliers?
 
 ```{r}
-# Assuming numbats_daily_count contains the data
 boxplot(numbats_daily_count$daily_sightings, main="R Default Box Plot")
-
 ```
 
-In this case, the observations above the whisker can be considered outliers.
+In this case, the observations above the whisker can be considered outliers. The sighting counts of 7, 8, 9, 13 should not be immediately called reasonable set of outliers because environmental factors should also be taken into account. For example, weather or temperature on a particular day be more suitable to the numbats. Another example could be the number of prey on a particular day could be abundant. Without further investigation, I would not classify the outliers as unreasonable.
